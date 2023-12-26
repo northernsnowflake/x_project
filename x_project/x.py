@@ -6,6 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 import time
 
 # webdriver, další 2 řádky must have 
@@ -41,12 +42,22 @@ try:
     # část selenia, browser se musí načíst a pak refreshovat 
     time.sleep(2.5)
     driver.refresh()
-    
+
     #hledá všechny 'a'
-    anchor_elements = soup.find_all('a')  
+    links = soup.find_all('a')  
     
-    for element in anchor_elements:
-        print(element.get('href'))
+    #soup.prettify()
+
+    for link in links:
+        print(link.get('href'))
+    
+    elements = driver.find_elements(By.TAG_NAME, 'a')  # You can change 'a' to another tag if needed
+
+    for element in elements:
+        href = element.get_attribute('href')
+        print(href)
+
+    
 
 finally:
     connection.commit()
