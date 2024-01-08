@@ -48,7 +48,7 @@ try:
     print(response.text)
 
     # část selenia, browser se musí načíst a pak refreshovat 
-    time.sleep(2.5)
+    time.sleep(3)
     driver.refresh()
 
     soup.prettify()
