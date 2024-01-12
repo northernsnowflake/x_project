@@ -6,6 +6,8 @@ from bs4 import BeautifulSoup
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+#from selenium.webdriver.support.ui import WebDriverWait
+#from selenium.webdriver.support import expected_conditions as EC
 import time
 
 
@@ -16,6 +18,8 @@ OPTIONS.binary_location = BROWSER_PATH
 OPTIONS.add_experimental_option("detach", True)
 
 driver=webdriver.Chrome(options=OPTIONS)
+
+
 
 # webdriver, další 2 řádky must have 
 # mám odsud https://stackoverflow.com/questions/76550506/typeerror-webdriver-init-got-an-unexpected-keyword-argument-executable-p
@@ -37,35 +41,56 @@ cursor = connection.cursor()
 query = """CREATE TABLE nabídka
     (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nazev TEXT NOT NULL,
-        vzdalenost TEXT NOT NULL,
-        cena NUMERIC NOT NULL
+        odkaz TEXT NOT NULL,
+        nazev TEXT,
+        vzdalenost TEXT,
+        cena NUMERIC
 
     );
     """
+
+'''
+query = """
+    INSERT INTO nabídka odkaz
+    VALUES odkaz
+    (
+    
+    );
+    """
+'''
 try:
-    #cursor.execute(query)
+    cursor.execute(query)
     print(response.text)
 
     # část selenia, browser se musí načíst a pak refreshovat 
-    time.sleep(3)
-    driver.refresh()
+    time.sleep(2.5)
+    #driver.refresh() # odebrala jsem, je zbytečné
 
     soup.prettify()
     
+    #elems = WebDriverWait(driver, 2.5).until(EC.presence_of_element_located((By.ID, "h2")))
+
     #hledá všechny 'a'
     #links = soup.find_all('a')  
 
     #for link in links:
         #print(link.get('href'))
     
-    elements = driver.find_elements(By.TAG_NAME, 'a')  # You can change 'a' to another tag if needed
+    #elements = elems.find_elements(By.TAG_NAME, 'a')
+    #elements = driver.find_elements(By.TAG_NAME, 'a')  # You can change 'a' to another tag if needed
+    elements = driver.find_elements(By.CLASS_NAME, 'title')  # You can change 'a' to another tag if needed
+
 
     for element in elements:
         odkaz = element.get_attribute('href')
-        print(odkaz)
+        if odkaz != None:
+            print(odkaz)
+        else:
+            pass
+
 
     
 finally:
     connection.commit()
     connection.close()
+    driver.quit()
