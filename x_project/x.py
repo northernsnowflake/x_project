@@ -10,6 +10,7 @@ from selenium.webdriver.common.by import By
 #from selenium.webdriver.support import expected_conditions as EC
 import time
 
+zaznamy = []
 
 #brave
 BROWSER_PATH = r"/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
@@ -18,7 +19,6 @@ OPTIONS.binary_location = BROWSER_PATH
 OPTIONS.add_experimental_option("detach", True)
 
 driver=webdriver.Chrome(options=OPTIONS)
-
 
 
 # webdriver, další 2 řádky must have 
@@ -33,33 +33,49 @@ response = requests.get(url)
 soup = BeautifulSoup(response.text, "html.parser")
 
 # vytvoří soubor domy.db pokud neexistuje
+# přidáme nové jméno databáze, musí končit '.db' 
 connection = sqlite3.connect("domy.db", timeout = 60)
 
 # je to objekt, přes který se zadávají sql příkazy
-cursor = connection.cursor()
+# vytvoříme instanci cursor
+#cursor = connection.cursor()
 
-query = """CREATE TABLE nabídka
-    (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        odkaz TEXT NOT NULL,
-        nazev TEXT,
-        vzdalenost TEXT,
-        cena NUMERIC
+def create_table_nabidka(connection):
+    cursor = connection.cursor()
+    query = """CREATE TABLE nabídka
+        (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            odkaz TEXT NOT NULL
+        );
+        """
+    '''
+    query = """CREATE TABLE nabídka
+        (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            odkaz TEXT NOT NULL,
+            nazev TEXT,
+            vzdalenost TEXT,
+            cena NUMERIC
+        );
+        """
+    '''
+    cursor.execute(query) # vytvoření tabulky
 
-    );
-    """
+def insert_into_nabidka(connection, slovnik):
+    cursor = connection.cursor()
+    data = [(url_add,) for url_add in slovnik.values()] 
+    cursor.executemany("INSERT INTO nabídka (odkaz) VALUES (?)", data)
+    '''
+    query = """
+        INSERT INTO nabídka (odkaz, nazev, vzdalenost, cena)
+        VALUES ('odkaz', 'Belecko3', '0.2km', '4000000')
+        """
+    '''
+    #return cursor.execute(query) # insert into tabulka
 
-'''
-query = """
-    INSERT INTO nabídka odkaz
-    VALUES odkaz
-    (
-    
-    );
-    """
-'''
+#print('Command executed successfully...')
+
 try:
-    cursor.execute(query)
     print(response.text)
 
     # část selenia, browser se musí načíst a pak refreshovat 
@@ -80,17 +96,23 @@ try:
     #elements = driver.find_elements(By.TAG_NAME, 'a')  # You can change 'a' to another tag if needed
     elements = driver.find_elements(By.CLASS_NAME, 'title')  # You can change 'a' to another tag if needed
 
-
     for element in elements:
         odkaz = element.get_attribute('href')
         if odkaz != None:
             print(odkaz)
+            zaznamy.append(odkaz)
         else:
             pass
+    #print(zaznamy)
+
+    slovnik = dict(enumerate(zaznamy))
+
+    insert_into_nabidka(connection, slovnik)
 
 
     
 finally:
+    # commitnout náš příkaz a zavřít connection
     connection.commit()
     connection.close()
     driver.quit()
