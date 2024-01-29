@@ -1,4 +1,6 @@
-url = "https://www.sreality.cz/hledani/prodej/domy/kralovehradecky-kraj,pardubicky-kraj?region=m%C4%9Bstsk%C3%A1%20%C4%8D%C3%A1st%20B%C4%9Ble%C4%8Dko&no_shares=1&region-id=148&region-typ=ward&bez-aukce=1&vzdalenost=5#z=12"
+#url = "https://www.sreality.cz/hledani/prodej/domy/kralovehradecky-kraj,pardubicky-kraj?region=m%C4%9Bstsk%C3%A1%20%C4%8D%C3%A1st%20B%C4%9Ble%C4%8Dko&no_shares=1&region-id=148&region-typ=ward&bez-aukce=1&vzdalenost=5#z=12"
+# for testing
+url = "https://www.sreality.cz/hledani/prodej/domy/kralovehradecky-kraj,pardubicky-kraj?no_shares=1&region=B%C3%BD%C5%A1%C5%A5&region-id=2551&region-typ=municipality&bez-aukce=1&vzdalenost=5"
 
 import sqlite3
 import requests 
@@ -6,6 +8,7 @@ from bs4 import BeautifulSoup
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+
 #from selenium.webdriver.support.ui import WebDriverWait
 #from selenium.webdriver.support import expected_conditions as EC
 import time
@@ -73,7 +76,13 @@ def insert_into_nabidka(connection, slovnik):
     '''
     #return cursor.execute(query) # insert into tabulka
 
-#print('Command executed successfully...')
+
+def print_data(connetion):
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM nabídka")
+    items = cursor.fetchall()
+    return items 
+
 
 try:
     print(response.text)
@@ -86,14 +95,6 @@ try:
     
     #elems = WebDriverWait(driver, 2.5).until(EC.presence_of_element_located((By.ID, "h2")))
 
-    #hledá všechny 'a'
-    #links = soup.find_all('a')  
-
-    #for link in links:
-        #print(link.get('href'))
-    
-    #elements = elems.find_elements(By.TAG_NAME, 'a')
-    #elements = driver.find_elements(By.TAG_NAME, 'a')  # You can change 'a' to another tag if needed
     elements = driver.find_elements(By.CLASS_NAME, 'title')  # You can change 'a' to another tag if needed
 
     for element in elements:
@@ -107,12 +108,47 @@ try:
 
     slovnik = dict(enumerate(zaznamy))
 
-    insert_into_nabidka(connection, slovnik)
+    #create_table_nabidka(connection)
+    #insert_into_nabidka(connection, slovnik)
+    #for item in print_data(connection): 
+    #    print(item[1])  
 
+    #personalization = driver.find_elements(By.CLASS_NAME, '')
 
+    #https://python-forum.io/thread-9525.html
+    ###arrow = driver.find_elements(By.CLASS_NAME, 'paging-next')[0]
+    #arrow = driver.find_elements(By.CLASS_NAME, 'btn-paging-on icof icon-arr-right paging-next')[0]
+    #arrow = driver.find_elements_by_xpath('//*[@id="page-layout"]/div[2]/div[3]/div[3]/div/div/div/div/div[3]/div/div[26]/ul[2]/li[6]/a')[0]
+   
+    #while page != 'disabled':
+    #    page.click()
     
+    ###arrow.click()
+    ###time.sleep(5)
+
+    '''
+    elements = driver.find_elements(By.CLASS_NAME, 'title') 
+    
+    for element in elements:
+        odkaz = element.get_attribute('href')
+        if odkaz != None:
+            print(odkaz)
+            zaznamy.append(odkaz)
+        else:
+            pass
+    '''        
+    #element_present = EC.presence_of_all_elements_located((By.CLASS_NAME, 'btn-paging-on icof icon-arr-right paging-next'))
+    #WebDriverWait(driver, 2.5).until(element_present)
+    #except TimeoutException:
+    #print("Timed out waiting for page to load")
+
 finally:
     # commitnout náš příkaz a zavřít connection
     connection.commit()
     connection.close()
     driver.quit()
+    #print('Page loaded')
+
+
+
+
