@@ -1,6 +1,6 @@
-#url = "https://www.sreality.cz/hledani/prodej/domy/kralovehradecky-kraj,pardubicky-kraj?region=m%C4%9Bstsk%C3%A1%20%C4%8D%C3%A1st%20B%C4%9Ble%C4%8Dko&no_shares=1&region-id=148&region-typ=ward&bez-aukce=1&vzdalenost=5#z=12"
+url = "https://www.sreality.cz/hledani/prodej/domy/kralovehradecky-kraj,pardubicky-kraj?region=m%C4%9Bstsk%C3%A1%20%C4%8D%C3%A1st%20B%C4%9Ble%C4%8Dko&no_shares=1&region-id=148&region-typ=ward&bez-aukce=1&vzdalenost=5#z=12"
 # for testing
-url = "https://www.sreality.cz/hledani/prodej/domy/kralovehradecky-kraj,pardubicky-kraj?no_shares=1&region=B%C3%BD%C5%A1%C5%A5&region-id=2551&region-typ=municipality&bez-aukce=1&vzdalenost=5"
+#url = "https://www.sreality.cz/hledani/prodej/domy/kralovehradecky-kraj,pardubicky-kraj?no_shares=1&region=B%C3%BD%C5%A1%C5%A5&region-id=2551&region-typ=municipality&bez-aukce=1&vzdalenost=5"
 
 import sqlite3
 import requests 
@@ -9,8 +9,10 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-#from selenium.webdriver.support.ui import WebDriverWait
-#from selenium.webdriver.support import expected_conditions as EC
+
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
 import time
 
 zaznamy = []
@@ -22,7 +24,6 @@ OPTIONS.binary_location = BROWSER_PATH
 OPTIONS.add_experimental_option("detach", True)
 
 driver=webdriver.Chrome(options=OPTIONS)
-
 
 # webdriver, další 2 řádky must have 
 # mám odsud https://stackoverflow.com/questions/76550506/typeerror-webdriver-init-got-an-unexpected-keyword-argument-executable-p
@@ -88,7 +89,7 @@ try:
     print(response.text)
 
     # část selenia, browser se musí načíst a pak refreshovat 
-    time.sleep(2.5)
+    time.sleep(5)
     #driver.refresh() # odebrala jsem, je zbytečné
 
     soup.prettify()
@@ -113,20 +114,30 @@ try:
     #for item in print_data(connection): 
     #    print(item[1])  
 
-    #personalization = driver.find_elements(By.CLASS_NAME, '')
+    #personalization = driver.find_element(By.XPATH, '/html/body/div[3]//div/div/div[2]/button[2]')
+    #personalization = driver.find_element(By.CLASS_NAME, 'scmp-btn scmp-btn--default')
+    ####wait = WebDriverWait(driver, 10)
+    ####personalization = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[3]//div/div/div[2]/button[2]'))) 
+    #personalization = driver.find_element(By.XPATH, '/html/body/div[3]//div/div/div[2]/button[2]')
+    #personalization = driver.find_element(By.CLASS_NAME, "Souhlasím")
+    #personalization = driver.find_element(By.CSS_SELECTOR, '[data-testid="button-agree"]')
+    ####personalization.click()
+    
+    ####driver.switch_to.default_content()
+    #<button type="button" class="scmp-btn scmp-btn--default" data-testid="button-agree"> <span class="">Souhlasím</span></button>
 
     #https://python-forum.io/thread-9525.html
-    ###arrow = driver.find_elements(By.CLASS_NAME, 'paging-next')[0]
+    arrow = driver.find_elements(By.CLASS_NAME, 'paging-next')[0]
     #arrow = driver.find_elements(By.CLASS_NAME, 'btn-paging-on icof icon-arr-right paging-next')[0]
     #arrow = driver.find_elements_by_xpath('//*[@id="page-layout"]/div[2]/div[3]/div[3]/div/div/div/div/div[3]/div/div[26]/ul[2]/li[6]/a')[0]
    
-    #while page != 'disabled':
-    #    page.click()
+    #while arrow != 'disabled':
+    #    arrow.click()
     
-    ###arrow.click()
-    ###time.sleep(5)
+    arrow.click()
+    time.sleep(5)
 
-    '''
+    
     elements = driver.find_elements(By.CLASS_NAME, 'title') 
     
     for element in elements:
@@ -136,12 +147,13 @@ try:
             zaznamy.append(odkaz)
         else:
             pass
-    '''        
+           
     #element_present = EC.presence_of_all_elements_located((By.CLASS_NAME, 'btn-paging-on icof icon-arr-right paging-next'))
     #WebDriverWait(driver, 2.5).until(element_present)
     #except TimeoutException:
     #print("Timed out waiting for page to load")
-
+#except NoSuchElementException:
+    #print("Button not found or not visible.")
 finally:
     # commitnout náš příkaz a zavřít connection
     connection.commit()
@@ -150,5 +162,9 @@ finally:
     #print('Page loaded')
 
 
-
+#<button type="button" class="scmp-btn scmp-btn--default" data-testid="button-agree">  <span class="">Souhlasím</span></button>
+# 
+# X Path /html/body/div[3]//div/div/div[2]/button[2]
+#
+#
 
