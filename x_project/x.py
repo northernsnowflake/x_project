@@ -6,6 +6,7 @@ import sqlite3
 import requests 
 from bs4 import BeautifulSoup
 
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -23,12 +24,24 @@ OPTIONS = webdriver.ChromeOptions()
 OPTIONS.binary_location = BROWSER_PATH
 OPTIONS.add_experimental_option("detach", True)
 
-driver=webdriver.Chrome(options=OPTIONS)
-
 # webdriver, další 2 řádky must have 
 # mám odsud https://stackoverflow.com/questions/76550506/typeerror-webdriver-init-got-an-unexpected-keyword-argument-executable-p
-# tohle přidat - driver=webdriver.Chrome()
+driver=webdriver.Chrome(options=OPTIONS)
 driver.get(url) 
+
+time.sleep(3)
+
+
+cookie = {
+    'name': 'euconsent-v2',
+    'value': 'CP6iR4AP6iR4AD3ACBCSApEsAP_gAEPgAATIJVwQQAAwAKAAsACAAFQALgAZAA6ACAAFAAKgAWgAyABoADmAIgAigBHACSAEwAJwAVQAtgBfgDCAMUAgACEgEQARQAjoBOAE6AL4AaQA4gB3ADxAH6AQgAkwBOACegFIAKyAWYAuoBgQDTgG0APkAjUBHQCaQE2gJ0AVIAtQBbgC8wGMgMkAZcA0oBqYDugHfgQHAhcBGYCVYIXQIoAFAAWABUAC4AIAAZAA0ACIAEcAJgAVQAtgBiAD8AISARABEgCOAE4AMsAZoA7gB-gEIAIsAXUA2gCbQFSALUAW4AvMBggDJAGpgQuAAAAA.YAAAAAAAAAAA',
+    'path': '/',
+    'domain': '.sreality.cz',  # Change this to your domain
+    'secure': True  # Set True if the cookie should only be transmitted over HTTPS
+}
+driver.add_cookie(cookie)
+driver.refresh()
+#driver.get(url) 
 
 # uložení objektu do proměnné response
 response = requests.get(url)
@@ -87,10 +100,8 @@ def print_data(connetion):
 
 try:
     print(response.text)
-
     # část selenia, browser se musí načíst a pak refreshovat 
-    time.sleep(5)
-    #driver.refresh() # odebrala jsem, je zbytečné
+    time.sleep(10)
 
     soup.prettify()
     
@@ -105,7 +116,6 @@ try:
             zaznamy.append(odkaz)
         else:
             pass
-    #print(zaznamy)
 
     slovnik = dict(enumerate(zaznamy))
 
@@ -114,30 +124,29 @@ try:
     #for item in print_data(connection): 
     #    print(item[1])  
 
-    #personalization = driver.find_element(By.XPATH, '/html/body/div[3]//div/div/div[2]/button[2]')
-    #personalization = driver.find_element(By.CLASS_NAME, 'scmp-btn scmp-btn--default')
-    ####wait = WebDriverWait(driver, 10)
-    ####personalization = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[3]//div/div/div[2]/button[2]'))) 
-    #personalization = driver.find_element(By.XPATH, '/html/body/div[3]//div/div/div[2]/button[2]')
-    #personalization = driver.find_element(By.CLASS_NAME, "Souhlasím")
-    #personalization = driver.find_element(By.CSS_SELECTOR, '[data-testid="button-agree"]')
-    ####personalization.click()
+ 
+    #next_button = driver.execute_script("arguments[0].scrollIntoView(true)")
+    #WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.scmp-btn--default[data-testid='button-agree']"))).click()
+    #WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='scmp-btn scmp-btn--default' and @data-testid='button-agree']"))).click()
+    #/html/body/div[3]//div/div/div[2]/button[2]/span
+    #/html/body/div[3]//div/div/div[2]/button[2]
     
-    ####driver.switch_to.default_content()
-    #<button type="button" class="scmp-btn scmp-btn--default" data-testid="button-agree"> <span class="">Souhlasím</span></button>
+    # Click the "Consent with Personalization" button
+    ######WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "button.scmp-btn--default[data-testid='button-agree']"))).click()
+    #WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.scmp-btn--default[data-testid='button-agree']"))).click()
+
 
     #https://python-forum.io/thread-9525.html
-    arrow = driver.find_elements(By.CLASS_NAME, 'paging-next')[0]
+    ######arrow = driver.find_elements(By.CLASS_NAME, 'paging-next')[0]
     #arrow = driver.find_elements(By.CLASS_NAME, 'btn-paging-on icof icon-arr-right paging-next')[0]
     #arrow = driver.find_elements_by_xpath('//*[@id="page-layout"]/div[2]/div[3]/div[3]/div/div/div/div/div[3]/div/div[26]/ul[2]/li[6]/a')[0]
    
     #while arrow != 'disabled':
     #    arrow.click()
     
-    arrow.click()
+    #####arrow.click()
     time.sleep(5)
 
-    
     elements = driver.find_elements(By.CLASS_NAME, 'title') 
     
     for element in elements:
@@ -167,4 +176,6 @@ finally:
 # X Path /html/body/div[3]//div/div/div[2]/button[2]
 #
 #
+
+
 
